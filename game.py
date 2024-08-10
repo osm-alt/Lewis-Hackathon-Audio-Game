@@ -2,7 +2,7 @@ import pygame
 import sys
 from audio_to_img import save_sound_wave_image
 
-# Define the Sprite class
+# Define the Sprite class with jumping capability
 class MovingSprite(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -12,10 +12,41 @@ class MovingSprite(pygame.sprite.Sprite):
         self.rect.y = background.get_height() // 2  # Start in the middle of the y-axis
         self.rect.x = 0  # Start on the left side
 
+        # Initialize physics variables
+        self.y_velocity = 0
+        self.gravity = 0.5
+        self.jump_strength = -10
+        self.is_jumping = False
+        self.on_ground = True
+
     def update(self):
-        self.rect.x += 1  # Move the sprite to the right
+        # Move the sprite to the right
+        self.rect.x += 5
+
+        # Apply gravity if not on the ground
+        if not self.on_ground:
+            self.y_velocity += self.gravity
+        else:
+            self.y_velocity = 0
+
+        # Update the vertical position
+        self.rect.y += self.y_velocity
+
+        # Check if the sprite is on the ground
+        if self.rect.bottom >= background.get_height():
+            self.rect.bottom = background.get_height()
+            self.on_ground = True
+            self.is_jumping = False
+
+        # Reset to the left side when it reaches the end
         if self.rect.right > background.get_width():
-            self.rect.left = 0  # Reset to the left side when it reaches the end
+            self.rect.left = 0
+
+    def jump(self):
+        if self.on_ground:
+            self.y_velocity = self.jump_strength
+            self.on_ground = False
+            self.is_jumping = True
 
 # Function to display the start screen
 def start_screen():
@@ -68,6 +99,9 @@ def main_game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    sprite.jump()
         
         # Update the sprite's position
         all_sprites.update()
