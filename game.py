@@ -18,11 +18,13 @@ class MovingSprite(pygame.sprite.Sprite):
         self.jump_strength = -10
         self.is_jumping = False
         self.on_ground = True
+        self.is_moving = True
 
     def update(self):
-        # Move the sprite to the right
-        self.rect.x += 5
-
+        if self.is_moving:
+            # Move the sprite to the right
+            self.rect.x += 5
+        
         # Apply gravity if not on the ground
         if not self.on_ground:
             self.y_velocity += self.gravity
@@ -38,6 +40,10 @@ class MovingSprite(pygame.sprite.Sprite):
             self.on_ground = True
             self.is_jumping = False
 
+        # Check if the sprite is over a blue pixel
+        if self.is_over_blue_pixel():
+            self.is_moving = False
+
         # Reset to the left side when it reaches the end
         if self.rect.right > background.get_width():
             self.rect.left = 0
@@ -48,6 +54,17 @@ class MovingSprite(pygame.sprite.Sprite):
             self.on_ground = False
             self.is_jumping = True
 
+    def is_over_blue_pixel(self):
+        # Get the color of the pixel where the sprite is
+        pixel_x = int(self.rect.x + self.rect.width / 2)
+        pixel_y = int(self.rect.y + self.rect.height / 2)
+
+        if 0 <= pixel_x < background_rect.width and 0 <= pixel_y < background_rect.height:
+            pixel_color = background.get_at((pixel_x, pixel_y))
+            # Check if the background pixel color is matplotlib-default blue 
+            return pixel_color == (31, 119, 180, 255)
+        return False
+    
 # Function to display the start screen
 def start_screen():
     # Set up font and colors
@@ -139,6 +156,7 @@ pygame.display.set_caption("Pygame with Start Screen")
 
 # Load the sound wave image for the background
 background = pygame.image.load('sound_wave.png')
+background_rect = background.get_rect()
 
 # Load the audio file
 pygame.mixer.music.load('output.wav')
