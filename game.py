@@ -25,6 +25,11 @@ class MovingSprite(pygame.sprite.Sprite):
         if self.is_moving:
             # Move the sprite to the right based on the speed and delta_time
             self.rect.x += self.speed * delta_time
+            
+            # Stop the sprite if it reaches the right edge of the screen
+            if self.rect.right >= background.get_width():
+                self.rect.right = background.get_width()
+                self.is_moving = False
         
         # Apply gravity if not on the ground
         if not self.on_ground:
@@ -44,10 +49,7 @@ class MovingSprite(pygame.sprite.Sprite):
         # Check if the sprite is over a blue pixel
         if self.is_over_blue_pixel():
             self.is_moving = False
-
-        # Reset to the left side when it reaches the end
-        if self.rect.right > background.get_width():
-            self.rect.left = 0
+            pygame.mixer.music.stop()  # Stop the audio
 
     def jump(self):
         if self.on_ground:
@@ -62,8 +64,8 @@ class MovingSprite(pygame.sprite.Sprite):
 
         if 0 <= pixel_x < background_rect.width and 0 <= pixel_y < background_rect.height:
             pixel_color = background.get_at((pixel_x, pixel_y))
-            # Check if the pixel color is blue (R=0, G=0, B=255)
-            return pixel_color == (0, 0, 255, 255)
+            # Check if the background pixel color is matplotlib-default blue 
+            return pixel_color == (31, 119, 180, 255)
         return False
 
 # Function to display the start screen
@@ -145,7 +147,7 @@ def main_game():
     # Quit Pygame
     pygame.quit()
     sys.exit()
-
+    
 # Example usage
 audio_file = './output.wav'  # Replace with your audio file path
 output_image_file = 'sound_wave.png'  # The image file to save
