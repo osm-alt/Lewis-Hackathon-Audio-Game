@@ -15,11 +15,12 @@ class MovingSprite(pygame.sprite.Sprite):
         # Initialize physics variables
         self.y_velocity = 0
         self.gravity = 0.5
-        self.jump_strength = -10
+        self.jump_strength = -5
         self.is_jumping = False
         self.on_ground = True
         self.is_moving = True
         self.speed = speed  # Movement speed of the sprite
+        self.has_jumped = False  # Track if the sprite has jumped
 
     def update(self, delta_time):
         if self.is_moving:
@@ -30,20 +31,24 @@ class MovingSprite(pygame.sprite.Sprite):
             if self.rect.right >= background.get_width():
                 self.rect.right = background.get_width()
                 self.is_moving = False
-        
-        # Apply gravity if not on the ground
-        if not self.on_ground:
+
+        # Apply gravity if the sprite has jumped at least once and is not on the ground
+        if self.has_jumped and not self.is_jumping:
             self.y_velocity += self.gravity
-        else:
-            self.y_velocity = 0
 
         # Update the vertical position
         self.rect.y += self.y_velocity
+
+        # Prevent the sprite from going above the top of the screen
+        if self.rect.top <= 0:
+            self.rect.top = 0
+            self.y_velocity = 0
 
         # Check if the sprite is on the ground
         if self.rect.bottom >= background.get_height():
             self.rect.bottom = background.get_height()
             self.on_ground = True
+            self.y_velocity = 0
             self.is_jumping = False
 
         # Check if the sprite is over a blue pixel
@@ -52,10 +57,14 @@ class MovingSprite(pygame.sprite.Sprite):
             pygame.mixer.music.stop()  # Stop the audio
 
     def jump(self):
-        if self.on_ground:
+        if self.rect.top > 0:  # Continue jumping as long as the sprite hasn't reached the top
             self.y_velocity = self.jump_strength
             self.on_ground = False
             self.is_jumping = True
+            self.has_jumped = True  # Mark that the sprite has jumped
+
+    def stop_jumping(self):
+        self.is_jumping = False  # Stop the upward movement
 
     def is_over_blue_pixel(self):
         # Get the color of the pixel where the sprite is
@@ -64,8 +73,14 @@ class MovingSprite(pygame.sprite.Sprite):
 
         if 0 <= pixel_x < background_rect.width and 0 <= pixel_y < background_rect.height:
             pixel_color = background.get_at((pixel_x, pixel_y))
+            if pixel_y + 2 < background_rect.height:
+                pixel_color_around = background.get_at((pixel_x, pixel_y + 2))
+            elif pixel_y - 2 > background_rect.height: 
+                pixel_color_around = background.get_at((pixel_x, pixel_y - 2))
+            else:
+                pixel_color_around = pixel_color
             # Check if the background pixel color is matplotlib-default blue 
-            return pixel_color == (31, 119, 180, 255)
+            return pixel_color == (31, 119, 180, 255) and pixel_color_around == (31, 119, 180, 255)
         return False
 
 # Function to display the start screen
@@ -131,6 +146,9 @@ def main_game():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     sprite.jump()
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    sprite.stop_jumping()
         
         # Update the sprite's position with the time-based approach
         all_sprites.update(delta_time)
@@ -147,7 +165,7 @@ def main_game():
     # Quit Pygame
     pygame.quit()
     sys.exit()
-    
+
 # Example usage
 audio_file = './output.wav'  # Replace with your audio file path
 output_image_file = 'sound_wave.png'  # The image file to save
@@ -159,7 +177,6 @@ pygame.init()
 # Screen dimensions for the start menu
 start_screen_width = 800
 start_screen_height = 600
-
 
 # Set up the initial screen for the start menu
 screen = pygame.display.set_mode((start_screen_width, start_screen_height))
