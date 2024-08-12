@@ -4,7 +4,7 @@ from audio_to_img import save_sound_wave_image
 
 # Define the Sprite class with jumping capability
 class MovingSprite(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, speed):
         super().__init__()
         self.image = pygame.Surface((20, 20))
         self.image.fill((255, 0, 0))  # Red square
@@ -19,11 +19,12 @@ class MovingSprite(pygame.sprite.Sprite):
         self.is_jumping = False
         self.on_ground = True
         self.is_moving = True
+        self.speed = speed  # Movement speed of the sprite
 
-    def update(self):
+    def update(self, delta_time):
         if self.is_moving:
-            # Move the sprite to the right
-            self.rect.x += 5
+            # Move the sprite to the right based on the speed and delta_time
+            self.rect.x += self.speed * delta_time
         
         # Apply gravity if not on the ground
         if not self.on_ground:
@@ -61,10 +62,10 @@ class MovingSprite(pygame.sprite.Sprite):
 
         if 0 <= pixel_x < background_rect.width and 0 <= pixel_y < background_rect.height:
             pixel_color = background.get_at((pixel_x, pixel_y))
-            # Check if the background pixel color is matplotlib-default blue 
-            return pixel_color == (31, 119, 180, 255)
+            # Check if the pixel color is blue (R=0, G=0, B=255)
+            return pixel_color == (0, 0, 255, 255)
         return False
-    
+
 # Function to display the start screen
 def start_screen():
     # Set up font and colors
@@ -103,16 +104,25 @@ def main_game():
     global screen
     screen = pygame.display.set_mode((background.get_width(), background.get_height()))
 
+    # Calculate the sprite speed in pixels per second
+    screen_width = background.get_width()
+    speed = screen_width / audio_length  # Pixels per second
+
     # Play the audio
     pygame.mixer.music.play()
 
     # Create a sprite group and add the moving sprite
     all_sprites = pygame.sprite.Group()
-    sprite = MovingSprite()
+    sprite = MovingSprite(speed)
     all_sprites.add(sprite)
-    
+
+    clock = pygame.time.Clock()
+
     running = True
     while running:
+        # Calculate the time passed since the last frame
+        delta_time = clock.tick(60) / 1000.0  # Convert milliseconds to seconds
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -120,8 +130,8 @@ def main_game():
                 if event.key == pygame.K_SPACE:
                     sprite.jump()
         
-        # Update the sprite's position
-        all_sprites.update()
+        # Update the sprite's position with the time-based approach
+        all_sprites.update(delta_time)
         
         # Draw the background image
         screen.blit(background, (0, 0))
@@ -135,7 +145,6 @@ def main_game():
     # Quit Pygame
     pygame.quit()
     sys.exit()
-
 
 # Example usage
 audio_file = './output.wav'  # Replace with your audio file path
@@ -160,6 +169,7 @@ background_rect = background.get_rect()
 
 # Load the audio file
 pygame.mixer.music.load('output.wav')
+audio_length = pygame.mixer.Sound(audio_file).get_length()  # Duration in seconds
 
 # Run the start screen
 start_screen()
