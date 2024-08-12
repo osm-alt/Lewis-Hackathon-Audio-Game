@@ -3,6 +3,33 @@ import sys
 from audio_to_img import save_sound_wave_image
 from MovingSprite import MovingSprite
 
+# Function to render the game over screen
+def game_over_screen():
+    # Set up font and colors
+    font = pygame.font.Font(None, 74)
+    text_color = (255, 0, 0)
+    bg_color = (0, 0, 0)
+    
+    # Fill the screen with background color
+    screen.fill(bg_color)
+    
+    # Render the game over text
+    game_over_text = font.render("Game Over", True, text_color)
+    screen.blit(game_over_text, (background.get_width() // 2 - game_over_text.get_width() // 2, background.get_height() // 2 - game_over_text.get_height() // 2))
+    
+    pygame.display.flip()
+    
+    # Wait for the user to press ESC to exit
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    waiting = False
+
 # Function to display the start screen
 def start_screen():
     # Set up font and colors
@@ -15,13 +42,16 @@ def start_screen():
     screen.fill(bg_color)
     
     # Render the title text
-    title_text = font.render("Start Screen", True, text_color)
+    title_text = font.render("Weird Audio Player", True, text_color)
     screen.blit(title_text, (start_screen_width // 2 - title_text.get_width() // 2, start_screen_height // 2 - 100))
     
     # Render the instruction text
-    instruction_text = small_font.render("Press SPACE to Start", True, text_color)
-    screen.blit(instruction_text, (start_screen_width // 2 - instruction_text.get_width() // 2, start_screen_height // 2 + 50))
+    instruction_text = small_font.render("Jump with SPACE and avoid blue spikes to keep audio playing", True, text_color)
+    screen.blit(instruction_text, (start_screen_width // 2 - instruction_text.get_width() // 2, start_screen_height // 2 + 25))
     
+    # Render the instruction text
+    instruction_text = small_font.render("Press SPACE to Start", True, text_color)
+    screen.blit(instruction_text, (start_screen_width // 2 - instruction_text.get_width() // 2, start_screen_height // 2 + 75))
     pygame.display.flip()
     
     # Wait for the user to press the SPACE key to start the game
@@ -71,7 +101,11 @@ def main_game():
                     sprite.stop_jumping()
         
         # Update the sprite's position with the time-based approach
-        all_sprites.update(delta_time)
+        game_over = sprite.update(delta_time)
+        
+        if game_over:
+            game_over_screen()
+            running = False
         
         # Draw the background image
         screen.blit(background, (0, 0))
@@ -100,7 +134,7 @@ start_screen_height = 600
 
 # Set up the initial screen for the start menu
 screen = pygame.display.set_mode((start_screen_width, start_screen_height))
-pygame.display.set_caption("Pygame with Start Screen")
+pygame.display.set_caption("Weird audio player")
 
 # Load the sound wave image for the background
 background = pygame.image.load('sound_wave.png')

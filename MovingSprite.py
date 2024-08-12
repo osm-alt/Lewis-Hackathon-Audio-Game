@@ -57,6 +57,8 @@ class MovingSprite(pygame.sprite.Sprite):
         if self.is_over_blue_pixel():
             self.is_moving = False
             pygame.mixer.music.stop()  # Stop the audio
+            return True  # Return True to indicate game over
+        return False  # Return False if not game over
 
     def jump(self):
         if self.rect.top > 0:  # Continue jumping as long as the sprite hasn't reached the top
