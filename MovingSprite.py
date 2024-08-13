@@ -43,6 +43,7 @@ class MovingSprite(pygame.sprite.Sprite):
             if self.rect.right >= background.get_width():
                 self.rect.right = background.get_width()
                 self.is_moving = False
+                return "win"  # Return "win" to indicate the player won
 
         # Apply gravity if the sprite has jumped at least once and is not on the ground
         if self.has_jumped and not self.is_jumping:
@@ -67,8 +68,8 @@ class MovingSprite(pygame.sprite.Sprite):
         if self.is_over_blue_pixel():
             self.is_moving = False
             pygame.mixer.music.stop()  # Stop the audio
-            return True  # Return True to indicate game over
-        return False  # Return False if not game over
+            return "game_over"  # Return "game_over" to indicate the game over
+        return None  # Return None if neither win nor game over
 
     def jump(self):
         if self.rect.top > 0:  # Continue jumping as long as the sprite hasn't reached the top

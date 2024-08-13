@@ -7,6 +7,7 @@ from MovingSprite import MovingSprite
 def game_over_screen():
     # Set up font and colors
     font = pygame.font.Font(None, 74)
+    small_font = pygame.font.Font(None, 36)
     text_color = (255, 0, 0)
     bg_color = (0, 0, 0)
     
@@ -17,6 +18,9 @@ def game_over_screen():
     game_over_text = font.render("Game Over", True, text_color)
     screen.blit(game_over_text, (background.get_width() // 2 - game_over_text.get_width() // 2, background.get_height() // 2 - game_over_text.get_height() // 2))
     
+    instruction_text = small_font.render("Press ESC to Quit", True, text_color)
+    screen.blit(instruction_text, (background.get_width() // 2 - instruction_text.get_width() // 2, background.get_height() // 2 + 50))
+
     pygame.display.flip()
     
     # Wait for the user to press ESC to exit
@@ -29,6 +33,39 @@ def game_over_screen():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     waiting = False
+
+    pygame.quit()
+    sys.exit()
+
+# Function to display the "You won!" screen
+def win_screen():
+    font = pygame.font.Font(None, 74)
+    small_font = pygame.font.Font(None, 36)
+    text_color = (255, 255, 255)
+    bg_color = (0, 0, 0)
+    
+    screen.fill(bg_color)
+    
+    win_text = font.render("You won!", True, text_color)
+    screen.blit(win_text, (background.get_width() // 2 - win_text.get_width() // 2, background.get_height() // 2 - 100))
+    
+    instruction_text = small_font.render("Press ESC to Quit", True, text_color)
+    screen.blit(instruction_text, (background.get_width() // 2 - instruction_text.get_width() // 2, background.get_height() // 2 + 50))
+    
+    pygame.display.flip()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    waiting = False
+
+    pygame.quit()
+    sys.exit()
 
 # Function to display the start screen
 def start_screen():
@@ -101,12 +138,14 @@ def main_game():
                     sprite.stop_jumping()
         
         # Update the sprite's position with the time-based approach
-        game_over = sprite.update(delta_time)
+        result = sprite.update(delta_time)
         
-        if game_over:
-            game_over_screen()
-            running = False
-        
+        # Check for win or game over
+        if result == "win":
+            win_screen()  # Display the "You won!" screen
+        elif result == "game_over":
+            game_over_screen()  # Display the game over screen
+
         # Draw the background image
         screen.blit(background, (0, 0))
         
