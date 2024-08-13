@@ -27,6 +27,10 @@ class MovingSprite(pygame.sprite.Sprite):
         # Track precise x position
         self.precise_x = self.rect.x
 
+        # Fixed bounce velocity
+        self.bounce_velocity_ground = 6
+        self.bounce_velocity_top = 2
+
     def update(self, delta_time):
         if self.is_moving:
             # Update the precise x position
@@ -34,7 +38,7 @@ class MovingSprite(pygame.sprite.Sprite):
 
             # Update the rect.x to match the precise position
             self.rect.x = int(self.precise_x)
-            
+
             # Stop the sprite if it reaches the right edge of the screen
             if self.rect.right >= background.get_width():
                 self.rect.right = background.get_width()
@@ -47,16 +51,16 @@ class MovingSprite(pygame.sprite.Sprite):
         # Update the vertical position
         self.rect.y += self.y_velocity
 
-        # Prevent the sprite from going above the top of the screen
+        # Check if the sprite hits the top of the screen
         if self.rect.top <= 0:
             self.rect.top = 0
-            self.y_velocity = 0
+            self.y_velocity = self.bounce_velocity_top  # Fixed downward bounce velocity
 
-        # Check if the sprite is on the ground
+        # Check if the sprite hits the ground
         if self.rect.bottom >= background.get_height():
             self.rect.bottom = background.get_height()
+            self.y_velocity = -self.bounce_velocity_ground  # Fixed upward bounce velocity
             self.on_ground = True
-            self.y_velocity = 0
             self.is_jumping = False
 
         # Check if the sprite is over a blue pixel
