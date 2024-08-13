@@ -120,7 +120,6 @@ def main_game():
     pygame.quit()
     sys.exit()
 
-# Example usage
 audio_file = './output.wav'  # Replace with your audio file path
 output_image_file = 'sound_wave.png'  # The image file to save
 save_sound_wave_image(audio_file, output_image_file)

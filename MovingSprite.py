@@ -24,10 +24,16 @@ class MovingSprite(pygame.sprite.Sprite):
         self.speed = speed  # Movement speed of the sprite
         self.has_jumped = False  # Track if the sprite has jumped
 
+        # Track precise x position
+        self.precise_x = self.rect.x
+
     def update(self, delta_time):
         if self.is_moving:
-            # Move the sprite to the right based on the speed and delta_time
-            self.rect.x += self.speed * delta_time
+            # Update the precise x position
+            self.precise_x += self.speed * delta_time
+
+            # Update the rect.x to match the precise position
+            self.rect.x = int(self.precise_x)
             
             # Stop the sprite if it reaches the right edge of the screen
             if self.rect.right >= background.get_width():
