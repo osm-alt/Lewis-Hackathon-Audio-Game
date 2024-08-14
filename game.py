@@ -3,27 +3,23 @@ import sys
 from audio_to_img import save_sound_wave_image
 from MovingSprite import MovingSprite
 
-# Function to render the game over screen
+# Function to display the "Game Over" screen with the option to restart
 def game_over_screen():
-    # Set up font and colors
     font = pygame.font.Font(None, 74)
     small_font = pygame.font.Font(None, 36)
     text_color = (255, 0, 0)
     bg_color = (0, 0, 0)
     
-    # Fill the screen with background color
     screen.fill(bg_color)
     
-    # Render the game over text
     game_over_text = font.render("Game Over", True, text_color)
-    screen.blit(game_over_text, (background.get_width() // 2 - game_over_text.get_width() // 2, background.get_height() // 2 - game_over_text.get_height() // 2))
+    screen.blit(game_over_text, (background.get_width() // 2 - game_over_text.get_width() // 2, background.get_height() // 2 - 100))
     
-    instruction_text = small_font.render("Press ESC to Quit", True, text_color)
+    instruction_text = small_font.render("Press R to Restart or ESC to Quit", True, text_color)
     screen.blit(instruction_text, (background.get_width() // 2 - instruction_text.get_width() // 2, background.get_height() // 2 + 50))
-
-    pygame.display.flip()
     
-    # Wait for the user to press ESC to exit
+    pygame.display.flip()
+
     waiting = True
     while waiting:
         for event in pygame.event.get():
@@ -31,11 +27,12 @@ def game_over_screen():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_r:
                     waiting = False
-
-    pygame.quit()
-    sys.exit()
+                    main_game()  # Restart the game
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
 
 # Function to display the "You won!" screen
 def win_screen():
