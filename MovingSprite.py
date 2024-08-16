@@ -1,12 +1,8 @@
 import pygame
 
-# Load the sound wave image for the background
-background = pygame.image.load('sound_wave.png')
-background_rect = background.get_rect()
-
 # Define the Sprite class with jumping capability
 class MovingSprite(pygame.sprite.Sprite):
-    def __init__(self, speed):
+    def __init__(self, speed, background):
         super().__init__()
         self.image = pygame.Surface((20, 20))
         self.image.fill((255, 0, 0))  # Red square
@@ -31,6 +27,10 @@ class MovingSprite(pygame.sprite.Sprite):
         self.bounce_velocity_ground = 6
         self.bounce_velocity_top = 2
 
+        # Background variables
+        self.background = background
+        self.background_rect = background.get_rect()
+
     def update(self, delta_time):
         if self.is_moving:
             # Update the precise x position
@@ -40,8 +40,8 @@ class MovingSprite(pygame.sprite.Sprite):
             self.rect.x = int(self.precise_x)
 
             # Stop the sprite if it reaches the right edge of the screen
-            if self.rect.right >= background.get_width():
-                self.rect.right = background.get_width()
+            if self.rect.right >= self.background.get_width():
+                self.rect.right = self.background.get_width()
                 self.is_moving = False
                 return "win"  # Return "win" to indicate the player won
 
@@ -58,8 +58,8 @@ class MovingSprite(pygame.sprite.Sprite):
             self.y_velocity = self.bounce_velocity_top  # Fixed downward bounce velocity
 
         # Check if the sprite hits the ground
-        if self.rect.bottom >= background.get_height():
-            self.rect.bottom = background.get_height()
+        if self.rect.bottom >= self.background.get_height():
+            self.rect.bottom = self.background.get_height()
             self.y_velocity = -self.bounce_velocity_ground  # Fixed upward bounce velocity
             self.on_ground = True
             self.is_jumping = False
@@ -86,12 +86,12 @@ class MovingSprite(pygame.sprite.Sprite):
         pixel_x = int(self.rect.x + self.rect.width / 2)
         pixel_y = int(self.rect.y + self.rect.height / 2)
 
-        if 0 <= pixel_x < background_rect.width and 0 <= pixel_y < background_rect.height:
-            pixel_color = background.get_at((pixel_x, pixel_y))
-            if pixel_y + 2 < background_rect.height:
-                pixel_color_around = background.get_at((pixel_x, pixel_y + 2))
-            elif pixel_y - 2 > background_rect.height: 
-                pixel_color_around = background.get_at((pixel_x, pixel_y - 2))
+        if 0 <= pixel_x < self.background_rect.width and 0 <= pixel_y < self.background_rect.height:
+            pixel_color = self.background.get_at((pixel_x, pixel_y))
+            if pixel_y + 2 < self.background_rect.height:
+                pixel_color_around = self.background.get_at((pixel_x, pixel_y + 2))
+            elif pixel_y - 2 > self.background_rect.height: 
+                pixel_color_around = self.background.get_at((pixel_x, pixel_y - 2))
             else:
                 pixel_color_around = pixel_color
             # Check if the background pixel color is matplotlib-default blue 

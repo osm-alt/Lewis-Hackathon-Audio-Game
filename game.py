@@ -114,7 +114,7 @@ def main_game():
 
     # Create a sprite group and add the moving sprite
     all_sprites = pygame.sprite.Group()
-    sprite = MovingSprite(speed)
+    sprite = MovingSprite(speed, background)
     all_sprites.add(sprite)
 
     clock = pygame.time.Clock()
